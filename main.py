@@ -17,10 +17,9 @@ STAFF_ROLE_ID = #стафф роль
 
 TOKEN = "токен бота дс"
 
-# Инициализация бота
 intents = disnake.Intents.default()
 intents.members = True
-intents.message_content = True  # Включаем intent для обработки контента сообщений
+intents.message_content = True  
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 
@@ -76,14 +75,12 @@ class ApplicationModal(disnake.ui.Modal):
             guild.get_role(STAFF_ROLE_ID): disnake.PermissionOverwrite(read_messages=True)
         }
 
-        # Создание канала заявки
         channel = await guild.create_text_channel(
             name=f"заявка-{nick}",
             category=category,
             overwrites=overwrites
         )
 
-        # Создание embed сообщения
         embed = disnake.Embed(title=f"Заявка от {nick}", color=disnake.Color.blue())
         embed.add_field(name="Ник", value=nick)
         embed.add_field(name="Возраст", value=age)
@@ -91,11 +88,9 @@ class ApplicationModal(disnake.ui.Modal):
         embed.add_field(name="Расскажите о себе", value=about)
         embed.add_field(name="Кто вас позвал на сервер?", value=invited_by)
 
-        # Добавление кнопок "Принять" и "Отказаться"
         view = DecisionView(interaction.author)
         await channel.send(embed=embed, view=view)
 
-        # Уведомление пользователя о создании канала
         await interaction.response.send_message(
             f"Заявка успешно создана! Перейдите в {channel.mention} для дальнейших действий.", ephemeral=True
         )
@@ -135,11 +130,9 @@ async def on_ready():
 
     channel = bot.get_channel(ANKETA_ID)
     if channel:
-        # Удаление всех старых сообщений в канале
         async for msg in channel.history(limit=None):
             await msg.delete()
 
-        # Отправка нового сообщения с использованием вебхука
         webhook = await channel.create_webhook(name="Application Webhook")
         await webhook.send(
             content="Для подачи заявки нажмите кнопку ниже.",
@@ -148,7 +141,6 @@ async def on_ready():
             avatar_url=bot.user.avatar.url if bot.user.avatar else None
         )
 
-        # Удаление вебхука, чтобы он не сохранялся
         await webhook.delete()
 
 
@@ -158,7 +150,6 @@ class ApplicationButton(disnake.ui.View):
 
     @disnake.ui.button(label="Написать", style=disnake.ButtonStyle.blurple)
     async def write_button(self, button: disnake.ui.Button, interaction: disnake.Interaction):
-        # Проверка роли IGROK_ROLE_ID
         if IGROK_ROLE_ID in [role.id for role in interaction.author.roles]:
             await interaction.response.send_message("У вас уже есть эта роль.", ephemeral=True)
         else:
